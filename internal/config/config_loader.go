@@ -21,9 +21,11 @@ func Init(configFile string) (*Config, error) {
 		return nil, err
 	}
 
-	jcart, err := json.MarshalIndent(config, "", "  ")
+	for _, monitor := range config.Monitors {
+		jcart, _ := json.MarshalIndent(monitor, "", "  ")
 
-	fmt.Println(string(jcart))
+		fmt.Println(string(jcart))
+	}
 
 	return &config, nil
 }

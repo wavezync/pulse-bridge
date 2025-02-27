@@ -11,4 +11,4 @@ build:
 
 run:
 	@echo "Running $(BINARY_NAME)..."
-	@$(GO) run ./main.go
+	@cd $(CURDIR) && $(GO) run ./cmd/pulse-bridge/main.go
