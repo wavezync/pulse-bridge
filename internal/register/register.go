@@ -16,7 +16,7 @@ func SetRegister(cfg *config.Config) {
 			// Register Database monitor
 			// registerDatabaseMonitor(monitor)
 		default:
-			log.Fatal().
+			log.Error().
 				Str("type", monitor.Type).
 				Str("monitor", monitor.Name).
 				Msg("Unknown monitor type")
