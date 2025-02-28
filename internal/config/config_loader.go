@@ -2,8 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v3"
 )
 
@@ -14,17 +14,22 @@ func Get() *Config {
 }
 
 func Init(configFile string) (*Config, error) {
-
 	err := yaml.Unmarshal([]byte(configFile), &config)
+	if err != nil {
+		return nil, err
+	}
 
+	err = ValidateConfig(&config)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, monitor := range config.Monitors {
-		jcart, _ := json.MarshalIndent(monitor, "", "  ")
-
-		fmt.Println(string(jcart))
+		jsonData, _ := json.MarshalIndent(monitor, "", "  ")
+		log.Debug().
+			Str("monitor", monitor.Name).
+			RawJSON("config", jsonData).
+			Msg("Loaded monitor configuration")
 	}
 
 	return &config, nil

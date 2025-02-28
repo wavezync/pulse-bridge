@@ -1,35 +1,37 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"wavezync/pulse-bridge/internal/config"
 	"wavezync/pulse-bridge/internal/handler"
+	"wavezync/pulse-bridge/internal/register"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+
 	configPath := "config.yml"
 	configData, err := os.ReadFile(configPath)
 	if err != nil {
-		fmt.Printf("Error reading config file: %v\n", err)
-		os.Exit(1)
+		log.Fatal().Err(err).Str("path", configPath).Msg("Failed to read config file")
 	}
 
 	cfg, err := config.Init(string(configData))
 	if err != nil {
-		fmt.Printf("Error initializing config: %v\n", err)
-		os.Exit(1)
+		log.Fatal().Err(err).Msg("Failed to initialize config")
 	}
+
+	register.SetRegister(cfg)
 
 	http.HandleFunc("/health", handler.Health)
 	http.HandleFunc("/status", handler.Status)
 
-	err = http.ListenAndServe(":8080", nil)
-
-	if err != nil {
-		fmt.Println(err)
+	log.Info().Msg("Starting server on :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal().Err(err).Msg("Server failed to start")
 	}
-
-	fmt.Println(*cfg)
 }
