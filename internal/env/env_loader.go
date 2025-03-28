@@ -10,7 +10,7 @@ func Get() *Config {
 }
 
 func Init() *Config {
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Warn().Err(err).Msg("Error loading .env file, using environment variables")
 	}
@@ -24,8 +24,8 @@ func Init() *Config {
 
 func loadConfig() {
 	AppConfig = Config{
-		ConfigPath: GetEnv("PULSE_BRIDGE_CONFIG", ""),
-		Host:       GetEnv("PULSE_BRIDGE_HOST", "0.0.0.0"),
-		Port:       GetEnvInt("PULSE_BRIDGE_PORT", 8080),
+		ConfigPath: GetEnv("ATHENA_CONFIG", ""),
+		Host:       GetEnv("HOST", "0.0.0.0"),
+		Port:       GetEnvInt("PORT", 8080),
 	}
 }

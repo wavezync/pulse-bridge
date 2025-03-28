@@ -5,7 +5,7 @@ monitors:
     interval: "30s"
     timeout: "5s"
     http:
-      url: "https://api.analystbuilder.com/api/health"
+      url: "http://athena-http-test/health"
       method: "GET"
       headers:
         Authorization: "Bearer secret-token"

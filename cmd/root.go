@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"wavezync/pulse-bridge/cmd/pulsebridge"
+	"wavezync/pulse-bridge/cmd/athena"
 	"wavezync/pulse-bridge/internal/env"
 
 	"github.com/rs/zerolog"
@@ -16,9 +16,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "pulse-bridge",
-	Short: "PulseBridge is a powerful uptime monitoring tool",
-	Long:  `PulseBridge exposes internal service status via HTTP, enabling seamless integration with external monitoring tools like Atlassian Statuspage.`,
+	Use:   "athena",
+	Short: "Athena is a powerful uptime monitoring tool",
+	Long:  `Athena exposes internal service status via HTTP, enabling seamless integration with external monitoring tools like Atlassian Statuspage.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		envConfig := env.Init()
 
@@ -32,7 +32,7 @@ var rootCmd = &cobra.Command{
 			envConfig.Port = port
 		}
 
-		return pulsebridge.Run(envConfig)
+		return athena.Run(envConfig)
 	},
 }
 

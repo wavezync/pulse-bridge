@@ -1,4 +1,4 @@
-BINARY_NAME=pb
+BINARY_NAME=athena
 
 GO=go
 
@@ -16,3 +16,8 @@ run:
 dev:
 	@echo "Running in development mode..."
 	@$(GO) run . --config=config.dev.yml
+
+docker:
+	@echo "Building Docker image..."
+	@docker compose down -v && docker build ./ -t paradise-comet && docker compose up -d
+	@echo "Docker image built and containers started."

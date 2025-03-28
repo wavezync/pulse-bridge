@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  athena:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: athena
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - GO_ENV=production
+      - ATHENA_CONFIG=/app/config.yml
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    networks:
+      - athena-network
+
+  athena-http-test:
+    image: nginx:alpine
+    container_name: athena-http-test
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    volumes:
+      - ./test-resources:/usr/share/nginx/html:ro
+    networks:
+      - athena-network
+
+networks:
+  athena-network:
+    driver: bridge

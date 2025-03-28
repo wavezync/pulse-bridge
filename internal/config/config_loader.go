@@ -16,14 +16,6 @@ func Get() *Config {
 
 func Init(configPath string, envConfig *env.Config) (*Config, error) {
 
-	if configPath == "" {
-		if envConfig.ConfigPath != "" {
-			configPath = envConfig.ConfigPath
-		} else {
-			configPath = "config.yml"
-		}
-	}
-
 	configData, err := os.ReadFile(configPath)
 	if err != nil {
 		log.Fatal().Err(err).Str("path", configPath).Msg("Failed to read config file")
