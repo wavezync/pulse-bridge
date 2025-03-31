@@ -1,4 +1,4 @@
-package register
+package monitor
 
 import (
 	"wavezync/pulse-bridge/internal/config"

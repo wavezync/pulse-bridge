@@ -3,6 +3,7 @@ package register
 import (
 	"time"
 	"wavezync/pulse-bridge/internal/config"
+	"wavezync/pulse-bridge/internal/monitor"
 
 	"github.com/rs/zerolog/log"
 )
@@ -64,9 +65,9 @@ func monitoringTimer(mntr *config.Monitor) {
 
 		switch mntr.Type {
 		case "http":
-			result, err = HttpMonitor(mntr)
+			result, err = monitor.HttpMonitor(mntr)
 		case "database":
-			result, err = DatabaseMonitor(mntr)
+			result, err = monitor.DatabaseMonitor(mntr)
 		}
 		resultChan <- struct {
 			message string
@@ -83,8 +84,8 @@ func monitoringTimer(mntr *config.Monitor) {
 				Msg("Monitor check failed")
 		} else {
 			log.Info().
-				Str("name", mntr.Name).
-				Msg(result.message)
+				Str("status", "ok").
+				Str("name", mntr.Name)
 		}
 	case <-timer.C:
 		log.Warn().

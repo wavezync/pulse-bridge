@@ -1,7 +1,6 @@
-package register
+package monitor
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -42,17 +41,6 @@ func HttpMonitor(monitor *config.Monitor) (string, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("request failed with status code %d: %s", resp.StatusCode, string(body))
-	}
-
-	var jsonResp map[string]interface{}
-	if err := json.Unmarshal(body, &jsonResp); err != nil {
-		return "", fmt.Errorf("failed to parse JSON response: %w", err)
-	}
-
-	status, ok := jsonResp["status"].(string)
-
-	if status != "ok" || !ok {
-		return "", fmt.Errorf("service reported non-ok status: %s", status)
 	}
 
 	return "Monitor check successful", nil

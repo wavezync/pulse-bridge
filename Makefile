@@ -19,5 +19,5 @@ dev:
 
 docker:
 	@echo "Building Docker image..."
-	@docker compose down -v && docker build ./ -t paradise-comet && docker compose up -d
+	@docker compose down -v && docker build ./ -t athena --no-cache && docker compose up -d
 	@echo "Docker image built and containers started."
