@@ -1,31 +1,31 @@
 package config
 
 type Config struct {
-	Monitors []Monitor `yaml:"monitors"`
+	Monitors []Monitor `mapstructure:"monitors"`
 }
 
 type Monitor struct {
-	Name     string           `yaml:"name"`
-	Type     string           `yaml:"type"`
-	Timeout  string           `yaml:"timeout"`
-	Interval string           `yaml:"interval"`
-	Http     *HTTPMonitor     `yaml:"http,omitempty"`
-	Database *DatabaseMonitor `yaml:"database,omitempty"`
+	Name     string           `mapstructure:"name"`
+	Type     string           `mapstructure:"type"`
+	Timeout  string           `mapstructure:"timeout"`
+	Interval string           `mapstructure:"interval"`
+	Http     *HTTPMonitor     `mapstructure:"http,omitempty"`
+	Database *DatabaseMonitor `mapstructure:"database,omitempty"`
 }
 
 type HTTPMonitor struct {
-	Url     string            `yaml:"url"`
-	Method  string            `yaml:"method"`
-	Headers map[string]string `yaml:"headers,flow"`
+	Url     string            `mapstructure:"url"`
+	Method  string            `mapstructure:"method"`
+	Headers map[string]string `mapstructure:"headers,flow"`
 }
 
 type DatabaseMonitor struct {
-	Driver           string  `yaml:"driver"`
-	Query            string  `yaml:"query"`
-	Host             *string `yaml:"host,omitempty"`
-	Port             *string `yaml:"port,omitempty"`
-	Username         *string `yaml:"username,omitempty"`
-	Password         *string `yaml:"password,omitempty"`
-	Database         *string `yaml:"database,omitempty"`
-	ConnectionString *string `yaml:"connection_string,omitempty"`
+	Driver           string  `mapstructure:"driver"`
+	Query            string  `mapstructure:"query"`
+	Host             *string `mapstructure:"host,omitempty"`
+	Port             *string `mapstructure:"port,omitempty"`
+	Username         *string `mapstructure:"username,omitempty"`
+	Password         *string `mapstructure:"password,omitempty"`
+	Database         *string `mapstructure:"database,omitempty"`
+	ConnectionString *string `mapstructure:"connection_string,omitempty"`
 }
