@@ -2,7 +2,6 @@ package env
 
 import (
 	"github.com/joho/godotenv"
-	"github.com/rs/zerolog/log"
 )
 
 func Get() *Config {
@@ -10,21 +9,15 @@ func Get() *Config {
 }
 
 func Init() *Config {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Warn().Err(err).Msg("Error loading .env file, using environment variables")
-	}
-
+	godotenv.Load(".env")
 	loadConfig()
-
-	log.Info().Msg("Environment configuration loaded successfully")
 
 	return &AppConfig
 }
 
 func loadConfig() {
 	AppConfig = Config{
-		ConfigPath: GetEnv("ATHENA_CONFIG", ""),
+		ConfigPath: GetEnv("PULSE_BRIDGE_CONFIG", ""),
 		Host:       GetEnv("HOST", "0.0.0.0"),
 		Port:       GetEnvInt("PORT", 8080),
 	}

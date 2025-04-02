@@ -1,11 +1,10 @@
 package config
 
 import (
-	"os"
 	"wavezync/pulse-bridge/internal/env"
 
 	"github.com/rs/zerolog/log"
-	"gopkg.in/yaml.v3"
+	"github.com/spf13/viper"
 )
 
 var config Config
@@ -15,19 +14,15 @@ func Get() *Config {
 }
 
 func Init(configPath string, envConfig *env.Config) (*Config, error) {
+	v := viper.New()
+	v.SetConfigFile(configPath)
 
-	configData, err := os.ReadFile(configPath)
-	if err != nil {
+	if err := v.ReadInConfig(); err != nil {
 		log.Fatal().Err(err).Str("path", configPath).Msg("Failed to read config file")
-	}
-
-	err = yaml.Unmarshal([]byte(configData), &config)
-	if err != nil {
 		return nil, err
 	}
 
-	err = ValidateConfig(&config)
-	if err != nil {
+	if err := v.Unmarshal(&config); err != nil {
 		return nil, err
 	}
 

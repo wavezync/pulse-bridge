@@ -15,7 +15,7 @@ func SetRegister(cfg *config.Config) {
 		go runMonitorWorker(&m)
 
 		log.Info().
-			Str("name", m.Name).
+			Str("monitor", m.Name).
 			Str("interval", m.Interval).
 			Msg("Monitor Initialized")
 	}
@@ -27,7 +27,7 @@ func runMonitorWorker(mntr *config.Monitor) {
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("type", mntr.Type).
+			Str("monitor", mntr.Name).
 			Msg("Error parsing duration, monitor not started")
 		return
 	}
@@ -46,7 +46,7 @@ func monitoringTimer(mntr *config.Monitor) {
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("name", mntr.Name).
+			Str("monitor", mntr.Name).
 			Msg("Error parsing duration, monitor not started")
 		return
 	}
@@ -55,24 +55,21 @@ func monitoringTimer(mntr *config.Monitor) {
 	defer timer.Stop()
 
 	resultChan := make(chan struct {
-		message string
-		err     error
+		err error
 	})
 
 	go func() {
-		var result string
 		var err error
 
 		switch mntr.Type {
 		case "http":
-			result, err = monitor.HttpMonitor(mntr)
+			err = monitor.HttpMonitor(mntr)
 		case "database":
-			result, err = monitor.DatabaseMonitor(mntr)
+			err = monitor.DatabaseMonitor(mntr)
 		}
 		resultChan <- struct {
-			message string
-			err     error
-		}{message: result, err: err}
+			err error
+		}{err: err}
 	}()
 
 	select {
@@ -84,12 +81,12 @@ func monitoringTimer(mntr *config.Monitor) {
 				Msg("Monitor check failed")
 		} else {
 			log.Info().
-				Str("status", "ok").
-				Str("name", mntr.Name)
+				Str("monitor", mntr.Name).
+				Msg("Monitor check successful")
 		}
 	case <-timer.C:
 		log.Warn().
-			Str("name", mntr.Name).
+			Str("monitor", mntr.Name).
 			Msg("Operation timed out")
 	}
 }

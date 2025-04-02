@@ -5,7 +5,7 @@ monitors:
     interval: "30s"
     timeout: "5s"
     http:
-      url: "http://athena-http-test/health"
+      url: "http://pulsebridge-http-test:8080/health"
       method: "GET"
       headers:
         Authorization: "Bearer secret-token"

@@ -1,31 +1,35 @@
 services:
-  athena:
+  pulsebridge:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: athena
+    container_name: pulsebridge
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
       - GO_ENV=production
-      - ATHENA_CONFIG=/app/config.yml
+      - PULSE_BRIDGE_CONFIG=/app/config.yml
     volumes:
       - ./config.yml:/app/config.yml:ro
     networks:
-      - athena-network
+      - pulsebridge-network
 
-  athena-http-test:
-    image: nginx:alpine
-    container_name: athena-http-test
-    restart: unless-stopped
+  pulsebridge-http-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pulsebridge-http-test
     ports:
-      - "8090:80"
+      - "8081:8080"
+    environment:
+      - GO_ENV=production
+      - PULSE_BRIDGE_CONFIG=/app/config.yml
     volumes:
-      - ./tests:/usr/share/nginx/html:ro
+      - ./config.yml:/app/config.yml:ro
     networks:
-      - athena-network
+      - pulsebridge-network
 
 networks:
-  athena-network:
+  pulsebridge-network:
     driver: bridge

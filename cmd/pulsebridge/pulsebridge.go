@@ -1,4 +1,4 @@
-package athena
+package pulsebridge
 
 import (
 	"fmt"
