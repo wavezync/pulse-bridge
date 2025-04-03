@@ -1,4 +1,4 @@
-package monitor
+package register
 
 type MonitorResponse struct {
 	Service     string     `json:"service"`

@@ -8,6 +8,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type ResultChanStruct struct {
+	err      error
+	mntr     *config.Monitor
+	duration time.Duration
+}
+
 func SetRegister(cfg *config.Config) {
 	for _, monitor := range cfg.Monitors {
 		m := monitor
@@ -54,12 +60,11 @@ func monitoringTimer(mntr *config.Monitor) {
 	timer := time.NewTimer(operationTimeout)
 	defer timer.Stop()
 
-	resultChan := make(chan struct {
-		err error
-	})
+	resultChan := make(chan ResultChanStruct)
 
 	go func() {
 		var err error
+		startTime := time.Now()
 
 		switch mntr.Type {
 		case "http":
@@ -67,23 +72,18 @@ func monitoringTimer(mntr *config.Monitor) {
 		case "database":
 			err = monitor.DatabaseMonitor(mntr)
 		}
-		resultChan <- struct {
-			err error
-		}{err: err}
+
+		duration := time.Since(startTime)
+		resultChan <- ResultChanStruct{
+			err:      err,
+			mntr:     mntr,
+			duration: duration,
+		}
 	}()
 
 	select {
 	case result := <-resultChan:
-		if result.err != nil {
-			log.Error().
-				Err(result.err).
-				Str("monitor", mntr.Name).
-				Msg("Monitor check failed")
-		} else {
-			log.Info().
-				Str("monitor", mntr.Name).
-				Msg("Monitor check successful")
-		}
+		createResponse(result)
 	case <-timer.C:
 		log.Warn().
 			Str("monitor", mntr.Name).
