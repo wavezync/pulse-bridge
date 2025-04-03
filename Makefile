@@ -1,4 +1,4 @@
-BINARY_NAME=pulsebridge
+BINARY_NAME=pb
 
 GO=go
 
