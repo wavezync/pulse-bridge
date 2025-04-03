@@ -8,7 +8,7 @@ import (
 )
 
 func Health(w http.ResponseWriter, r *http.Request) {
-	log.Debug().
+	log.Info().
 		Str("remote_addr", r.RemoteAddr).
 		Str("method", r.Method).
 		Msg("Health check requested")

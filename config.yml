@@ -1,46 +1,57 @@
 monitors:
   # HTTP service monitoring
-  - name: "Company Website"
+  - name: "HTTP Service"
     type: "http"
     interval: "30s"
     timeout: "5s"
     http:
-      url: "https://company.com/health"
+      url: "http://helloworld-http:8080/ping"
       method: "GET"
       headers:
         Authorization: "Bearer secret-token"
         Content-Type: "application/json"
 
-  # Database with structured parameters
-  - name: "Main Database"
+  # Postgres monitoring
+  - name: "PostgreSQL Service"
     type: "database"
-    interval: "1m"
-    timeout: "10s"
-    database:
-      driver: "mysql"
-      host: "db.company.com"
-      port: 3306
-      username: "health_checker"
-      password: "secret123"
-      database: "production"
-      query: "SELECT 1"
-
-  # Database with connection string
-  - name: "Analytics Database"
-    type: "database"
-    interval: "5m"
-    timeout: "15s"
-    database:
-      driver: "mysql"
-      connection_string: "mysql://monitor:monitor123@analytics-db.company.com:3306/analytics"
-      query: "SELECT COUNT(*) FROM events WHERE created_at >= NOW() - INTERVAL 1 HOUR"
-
-  # PostgreSQL with connection string
-  - name: "User Database"
-    type: "database"
-    interval: "2m"
+    interval: "30s"
     timeout: "10s"
     database:
       driver: "postgres"
-      connection_string: "postgresql://app_user:pass123@users-db.company.com:5432/users?sslmode=verify-full"
+      connection_string: "postgres://postgres:postgres@postgres-db:5432/monitoring?sslmode=disable"
       query: "SELECT 1"
+
+  # MySQL monitoring
+  - name: "MySQL Service"
+    type: "database"
+    interval: "30s"
+    timeout: "10s"
+    database:
+      driver: "mysql"
+      connection_string: "root:mysql@tcp(mysql-db:3306)/monitoring"
+      query: "SELECT 1"
+
+  # MariaDB monitoring
+  - name: "MariaDB Service"
+    type: "database"
+    interval: "30s"
+    timeout: "10s"
+    database:
+      driver: "mariadb"
+      connection_string: "root:mariadb@tcp(mariadb-db:3306)/monitoring"
+      query: "SELECT 1"
+
+  # MSSQL monitoring
+  - name: "MSSQL Service" 
+    type: "database"
+    interval: "30s"
+    timeout: "10s"
+    database:
+      driver: "mssql"
+      host: "mssql-db"
+      port: 1433
+      username: "SA"
+      password: "Password1!"
+      database: "master"
+      query: "SELECT 1"
+

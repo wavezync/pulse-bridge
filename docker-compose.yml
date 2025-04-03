@@ -1,0 +1,81 @@
+services:
+  pulsebridge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pulsebridge
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - GO_ENV=production
+      - PULSE_BRIDGE_CONFIG=/app/config.yml
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    networks:
+      - pulsebridge-network
+
+  helloworld-http:
+    image: testcontainers/helloworld:latest
+    container_name: helloworld-http
+    networks:
+      - pulsebridge-network
+  
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres-db
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=monitoring
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - pulsebridge-network
+
+  mysql-db:
+    image: mysql:latest
+    container_name: mysql-db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql
+      - MYSQL_DATABASE=monitoring
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - pulsebridge-network
+
+  mariadb-db:
+    image: mariadb:latest
+    container_name: mariadb-db
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=mariadb
+      - MARIADB_DATABASE=monitoring
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks:
+      - pulsebridge-network
+
+  mssql-db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: mssql-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password1!
+      - MSSQL_PID=Express
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - pulsebridge-network
+
+networks:
+  pulsebridge-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mysql-data:
+  mariadb-data:
+  mssql-data:

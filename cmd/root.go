@@ -16,9 +16,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "pulse-bridge",
-	Short: "PulseBridge is a powerful uptime monitoring tool",
-	Long:  `PulseBridge exposes internal service status via HTTP, enabling seamless integration with external monitoring tools like Atlassian Statuspage.`,
+	Use:   "pulsebridge",
+	Short: "pulsebridge is a powerful uptime monitoring tool",
+	Long:  `pulsebridge exposes internal service status via HTTP, enabling seamless integration with external monitoring tools like Atlassian Statuspage.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		envConfig := env.Init()
 
