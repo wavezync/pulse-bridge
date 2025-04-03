@@ -1,21 +1,20 @@
-package database_clients
+package databaseClients
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func ExecMysqlQuery(useConnString bool, connString, host, port, username, password, database, query string, timeout time.Duration) error {
+func ExecMysqlQuery(useConnString bool, config DatabaseClientConfig) error {
 	var err error
 
-	connectionStr := connString
+	connectionStr := config.ConnString
 	if !useConnString {
 		connectionStr = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",
-			username, password, host, port, database)
+			config.Username, config.Password, config.Host, config.Port, config.Dbname)
 	}
 
 	mysqlDB, err := sql.Open("mysql", connectionStr)
@@ -24,20 +23,20 @@ func ExecMysqlQuery(useConnString bool, connString, host, port, username, passwo
 	}
 	defer mysqlDB.Close()
 
-	// Optimize connection pool settings for health checks
-	mysqlDB.SetConnMaxLifetime(timeout)
-	mysqlDB.SetMaxOpenConns(1)
-	mysqlDB.SetMaxIdleConns(0)
+	// Apply connection pool settings
+	mysqlDB.SetConnMaxLifetime(config.ConnMaxLifetime)
+	mysqlDB.SetMaxOpenConns(config.MaxOpenConns)
+	mysqlDB.SetMaxIdleConns(config.MaxIdleConns)
 
 	// Set connection timeout
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
 	defer cancel()
 
 	if err = mysqlDB.PingContext(ctx); err != nil {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	_, err = mysqlDB.QueryContext(ctx, query)
+	_, err = mysqlDB.QueryContext(ctx, config.Query)
 	if err != nil {
 		return fmt.Errorf("query execution failed: %w", err)
 	}

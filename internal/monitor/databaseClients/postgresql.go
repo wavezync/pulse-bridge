@@ -1,21 +1,20 @@
-package database_clients
+package databaseClients
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	_ "github.com/lib/pq"
 )
 
-func ExecPgQuery(useConnString bool, connString, host, port, username, password, database, query string, timeout time.Duration) error {
+func ExecPgQuery(useConnString bool, config DatabaseClientConfig) error {
 	var err error
 
-	connectionStr := connString
+	connectionStr := config.ConnString
 	if !useConnString {
 		connectionStr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-			username, password, host, port, database)
+			config.Username, config.Password, config.Host, config.Port, config.Dbname)
 	}
 
 	pgDB, err := sql.Open("postgres", connectionStr)
@@ -24,20 +23,20 @@ func ExecPgQuery(useConnString bool, connString, host, port, username, password,
 	}
 	defer pgDB.Close()
 
-	// Optimize connection pool settings for health checks
-	pgDB.SetConnMaxLifetime(timeout)
-	pgDB.SetMaxOpenConns(1)
-	pgDB.SetMaxIdleConns(0)
+	// Apply connection pool settings
+	pgDB.SetConnMaxLifetime(config.ConnMaxLifetime)
+	pgDB.SetMaxOpenConns(config.MaxOpenConns)
+	pgDB.SetMaxIdleConns(config.MaxIdleConns)
 
 	// Set connection timeout
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
 	defer cancel()
 
 	if err = pgDB.PingContext(ctx); err != nil {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	_, err = pgDB.QueryContext(ctx, query)
+	_, err = pgDB.QueryContext(ctx, config.Query)
 	if err != nil {
 		return fmt.Errorf("query execution failed: %w", err)
 	}

@@ -1,21 +1,20 @@
-package database_clients
+package databaseClients
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-func ExecMssqlQuery(useConnString bool, connString, host, port, username, password, database, query string, timeout time.Duration) error {
+func ExecMssqlQuery(useConnString bool, config DatabaseClientConfig) error {
 	var err error
 
-	connectionStr := connString
+	connectionStr := config.ConnString
 	if !useConnString {
 		connectionStr = fmt.Sprintf("server=%s;port=%s;user id=%s;password=%s;database=%s;encrypt=disable",
-			host, port, username, password, database)
+			config.Host, config.Port, config.Username, config.Password, config.Dbname)
 	}
 
 	mssqlDB, err := sql.Open("sqlserver", connectionStr)
@@ -24,20 +23,20 @@ func ExecMssqlQuery(useConnString bool, connString, host, port, username, passwo
 	}
 	defer mssqlDB.Close()
 
-	// Optimize connection pool settings for health checks
-	mssqlDB.SetConnMaxLifetime(timeout)
-	mssqlDB.SetMaxOpenConns(1)
-	mssqlDB.SetMaxIdleConns(0)
+	// Apply connection pool settings
+	mssqlDB.SetConnMaxLifetime(config.ConnMaxLifetime)
+	mssqlDB.SetMaxOpenConns(config.MaxOpenConns)
+	mssqlDB.SetMaxIdleConns(config.MaxIdleConns)
 
 	// Set connection timeout
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
 	defer cancel()
 
 	if err = mssqlDB.PingContext(ctx); err != nil {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	_, err = mssqlDB.QueryContext(ctx, query)
+	_, err = mssqlDB.QueryContext(ctx, config.Query)
 	if err != nil {
 		return fmt.Errorf("query execution failed: %w", err)
 	}
