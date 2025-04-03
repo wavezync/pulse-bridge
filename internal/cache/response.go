@@ -1,4 +1,4 @@
-package register
+package cache
 
 type MonitorResponse struct {
 	Service     string     `json:"service"`

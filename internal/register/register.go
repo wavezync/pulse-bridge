@@ -11,7 +11,8 @@ import (
 type ResultChanStruct struct {
 	err      error
 	mntr     *config.Monitor
-	duration time.Duration
+	responseTime time.Duration
+	lastCheck time.Time
 }
 
 func SetRegister(cfg *config.Config) {
@@ -73,11 +74,11 @@ func monitoringTimer(mntr *config.Monitor) {
 			err = monitor.DatabaseMonitor(mntr)
 		}
 
-		duration := time.Since(startTime)
 		resultChan <- ResultChanStruct{
 			err:      err,
 			mntr:     mntr,
-			duration: duration,
+			responseTime: time.Since(startTime),
+			lastCheck: startTime,
 		}
 	}()
 
