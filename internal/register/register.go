@@ -2,17 +2,12 @@ package register
 
 import (
 	"time"
+	"wavezync/pulse-bridge/internal/cache"
 	"wavezync/pulse-bridge/internal/config"
 	"wavezync/pulse-bridge/internal/monitor"
 
 	"github.com/rs/zerolog/log"
 )
-
-type ResultChanStruct struct {
-	err      error
-	mntr     *config.Monitor
-	duration time.Duration
-}
 
 func SetRegister(cfg *config.Config) {
 	for _, monitor := range cfg.Monitors {
@@ -74,10 +69,25 @@ func monitoringTimer(mntr *config.Monitor) {
 		}
 
 		duration := time.Since(startTime)
+
+		// Consecutive successes logic
+		oldResponse, isExisting := cache.DefaultMonitorCache.GetMonitorStatus(mntr.Name)
+		consecutiveSuccesses := 0
+		if err == nil {
+			if isExisting {
+				consecutiveSuccesses = oldResponse.Metrics.ConsecutiveSuccesses + 1
+			} else {
+				consecutiveSuccesses = 1
+			}
+		} else {
+			consecutiveSuccesses = 0
+		}
+
 		resultChan <- ResultChanStruct{
-			err:      err,
-			mntr:     mntr,
-			duration: duration,
+			err:                  err,
+			mntr:                 mntr,
+			duration:             duration,
+			consecutiveSuccesses: consecutiveSuccesses,
 		}
 	}()
 

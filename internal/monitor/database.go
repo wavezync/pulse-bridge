@@ -12,7 +12,7 @@ func DatabaseMonitor(monitor *config.Monitor) error {
 		return fmt.Errorf("database configuration is missing")
 	}
 
-	isSupported := slices.Contains([]string{"mysql", "mariadb", "postgres", "sqlite", "mssql"}, monitor.Database.Driver)
+	isSupported := slices.Contains([]string{"mysql", "mariadb", "postgres", "mssql"}, monitor.Database.Driver)
 	if !isSupported {
 		return fmt.Errorf("unsupported database driver: %s", monitor.Database.Driver)
 	}
@@ -30,6 +30,6 @@ func DatabaseMonitor(monitor *config.Monitor) error {
 	case "mssql":
 		return databaseClients.ExecMssqlQuery(useConnString, clientConfig)
 	default:
-		return fmt.Errorf("driver %s is supported but not implemented yet", monitor.Database.Driver)
+		return fmt.Errorf("driver %s is not supported yet", monitor.Database.Driver)
 	}
 }
