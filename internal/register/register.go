@@ -33,6 +33,10 @@ func runMonitorWorker(mntr *config.Monitor) {
 		return
 	}
 
+	// Run the monitor check immediately first
+	monitoringTimer(mntr)
+
+	// Then set up the ticker for subsequent checks
 	ticker := time.NewTicker(duration)
 	defer ticker.Stop()
 

@@ -3,9 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-
 	"strings"
 	"wavezync/pulse-bridge/internal/cache"
+	"wavezync/pulse-bridge/internal/config"
 
 	"github.com/rs/zerolog/log"
 )
@@ -17,8 +17,37 @@ func MonitorServices(w http.ResponseWriter, r *http.Request) {
 		Msg("Monitor services status requested")
 
 	w.Header().Set("Content-Type", "application/json")
-	statuses := cache.DefaultMonitorCache.GetAllMonitorStatus()
-	if err := json.NewEncoder(w).Encode(statuses); err != nil {
+
+	allStatuses := cache.DefaultMonitorCache.GetAllMonitorStatus()
+
+	statusMap := make(map[string]int)
+	for i, status := range allStatuses {
+		statusMap[status.Service] = i
+	}
+
+	cfg := config.Get()
+
+	orderedStatuses := make([]interface{}, 0, len(allStatuses))
+	for _, monitor := range cfg.Monitors {
+		if idx, exists := statusMap[monitor.Name]; exists {
+			orderedStatuses = append(orderedStatuses, allStatuses[idx])
+		}
+	}
+
+	for _, status := range allStatuses {
+		found := false
+		for _, monitor := range cfg.Monitors {
+			if status.Service == monitor.Name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			orderedStatuses = append(orderedStatuses, status)
+		}
+	}
+
+	if err := json.NewEncoder(w).Encode(orderedStatuses); err != nil {
 		log.Error().Err(err).Msg("Failed to encode monitor services response")
 	}
 }

@@ -12,7 +12,7 @@ func DatabaseMonitor(monitor *config.Monitor) error {
 		return fmt.Errorf("database configuration is missing")
 	}
 
-	isSupported := slices.Contains([]string{"mysql", "mariadb", "postgres", "mssql"}, monitor.Database.Driver)
+	isSupported := slices.Contains([]string{"mysql", "mariadb", "postgres", "mssql", "redis"}, monitor.Database.Driver)
 	if !isSupported {
 		return fmt.Errorf("unsupported database driver: %s", monitor.Database.Driver)
 	}
@@ -29,6 +29,8 @@ func DatabaseMonitor(monitor *config.Monitor) error {
 		return databaseClients.ExecMysqlQuery(useConnString, clientConfig)
 	case "mssql":
 		return databaseClients.ExecMssqlQuery(useConnString, clientConfig)
+	case "redis":
+		return databaseClients.ExecRedisQuery(useConnString, clientConfig)
 	default:
 		return fmt.Errorf("driver %s is not supported yet", monitor.Database.Driver)
 	}

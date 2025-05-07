@@ -12,8 +12,7 @@ func createResponse(result ResultChanStruct) types.MonitorResponse {
 	var newResponse types.MonitorResponse
 
 	if result.err != nil {
-		log.Error().
-			Err(result.err).
+		log.Info().
 			Str("monitor", result.mntr.Name).
 			Msg("Monitor check failed")
 	} else {
@@ -24,32 +23,14 @@ func createResponse(result ResultChanStruct) types.MonitorResponse {
 
 	oldResponse, isExisting := cache.DefaultMonitorCache.GetMonitorStatus(result.mntr.Name)
 
-	var lastSuccess string
-	if result.err == nil {
-		lastSuccess = time.Now().String()
-	} else if isExisting && oldResponse.Status == "healthy" {
-		lastSuccess = oldResponse.LastCheck
-	} else if isExisting {
-		lastSuccess = oldResponse.LastSuccess
-	} else {
-		lastSuccess = ""
-	}
-
-	// Consecutive successes logic
-	consecutiveSuccesses := 0
-	if result.err == nil {
-		if isExisting {
-			consecutiveSuccesses = oldResponse.Metrics.ConsecutiveSuccesses + 1
-		} else {
-			consecutiveSuccesses = 1
-		}
-	} else {
-		consecutiveSuccesses = 0
-	}
+	lastSuccess := getLastSuccess(result.err, isExisting, oldResponse, time.Now().String())
+	consecutiveSuccesses := getConsecutiveSuccesses(result.err, isExisting, oldResponse)
+	lastError := getLastError(result.err, isExisting, oldResponse)
+	status := statusFromError(result.err)
 
 	newResponse = types.MonitorResponse{
 		Service:     result.mntr.Name,
-		Status:      statusFromError(result.err),
+		Status:      status,
 		Type:        result.mntr.Type,
 		LastCheck:   time.Now().String(),
 		LastSuccess: lastSuccess,
@@ -58,23 +39,47 @@ func createResponse(result ResultChanStruct) types.MonitorResponse {
 			CheckInterval:        result.mntr.Interval,
 			ConsecutiveSuccesses: consecutiveSuccesses,
 		},
-		LastError: errorString(result.err),
+		LastError: lastError,
 	}
 
 	cache.DefaultMonitorCache.SetMonitorStatus(result.mntr.Name, newResponse)
 	return newResponse
 }
 
-func statusFromError(err error) string {
+func getLastSuccess(err error, isExisting bool, oldResponse types.MonitorResponse, currentTime string) string {
 	if err == nil {
-		return "healthy"
+		return currentTime
+	} else if isExisting && oldResponse.Status == types.StatusHealthy {
+		return oldResponse.LastCheck
+	} else if isExisting {
+		return oldResponse.LastSuccess
 	}
-	return "unhealthy"
+	return ""
 }
 
-func errorString(err error) string {
+func getConsecutiveSuccesses(err error, isExisting bool, oldResponse types.MonitorResponse) int {
 	if err == nil {
-		return ""
+		if isExisting {
+			return oldResponse.Metrics.ConsecutiveSuccesses + 1
+		}
+		return 1
 	}
-	return err.Error()
+	return 0
+}
+
+func getLastError(err error, isExisting bool, oldResponse types.MonitorResponse) string {
+	if err != nil {
+		if isExisting {
+			return oldResponse.LastError
+		}
+		return err.Error()
+	}
+	return ""
+}
+
+func statusFromError(err error) types.Status {
+	if err == nil {
+		return types.StatusHealthy
+	}
+	return types.StatusUnhealthy
 }
