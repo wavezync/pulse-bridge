@@ -19,8 +19,6 @@ func Run(envConfig *env.Config) error {
 		return err
 	}
 
-	log.Info().Msg("v1")
-
 	register.SetRegister(cfg)
 
 	http.HandleFunc("/health", handler.Health)

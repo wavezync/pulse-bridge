@@ -46,7 +46,7 @@ func createResponse(result ResultChanStruct) types.MonitorResponse {
 	return newResponse
 }
 
-func getLastSuccess(err error, isExisting bool, oldResponse types.MonitorResponse, currentTime string) string {
+func getLastSuccess(err *types.MonitorError, isExisting bool, oldResponse types.MonitorResponse, currentTime string) string {
 	if err == nil {
 		return currentTime
 	} else if isExisting && oldResponse.Status == types.StatusHealthy {
@@ -57,7 +57,7 @@ func getLastSuccess(err error, isExisting bool, oldResponse types.MonitorRespons
 	return ""
 }
 
-func getConsecutiveSuccesses(err error, isExisting bool, oldResponse types.MonitorResponse) int {
+func getConsecutiveSuccesses(err *types.MonitorError, isExisting bool, oldResponse types.MonitorResponse) int {
 	if err == nil {
 		if isExisting {
 			return oldResponse.Metrics.ConsecutiveSuccesses + 1
@@ -67,19 +67,23 @@ func getConsecutiveSuccesses(err error, isExisting bool, oldResponse types.Monit
 	return 0
 }
 
-func getLastError(err error, isExisting bool, oldResponse types.MonitorResponse) string {
+func getLastError(err *types.MonitorError, isExisting bool, oldResponse types.MonitorResponse) string {
 	if err != nil {
-		if isExisting {
-			return oldResponse.LastError
-		}
 		return err.Error()
+	} else if isExisting && oldResponse.LastError != "" {
+		return oldResponse.LastError
 	}
 	return ""
+
 }
 
-func statusFromError(err error) types.Status {
+func statusFromError(err *types.MonitorError) types.Status {
 	if err == nil {
 		return types.StatusHealthy
+	} else if types.IsClientError(err) {
+		return types.StatusUnhealthy
+	} else if types.IsConfigError(err) {
+		return types.StatusUnknown
 	}
-	return types.StatusUnhealthy
+	return types.StatusUnknown
 }

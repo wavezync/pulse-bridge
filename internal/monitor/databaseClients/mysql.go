@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"wavezync/pulse-bridge/internal/types"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func ExecMysqlQuery(useConnString bool, config DatabaseClientConfig) error {
+func ExecMysqlQuery(useConnString bool, config DatabaseClientConfig) *types.MonitorError {
 	var err error
 
 	connectionStr := config.ConnString
@@ -19,7 +20,7 @@ func ExecMysqlQuery(useConnString bool, config DatabaseClientConfig) error {
 
 	mysqlDB, err := sql.Open("mysql", connectionStr)
 	if err != nil {
-		return fmt.Errorf("failed to open database connection: %w", err)
+		return types.NewConfigError(fmt.Errorf("failed to open database connection: %w", err))
 	}
 	defer mysqlDB.Close()
 
@@ -31,13 +32,13 @@ func ExecMysqlQuery(useConnString bool, config DatabaseClientConfig) error {
 	defer cancel()
 
 	if err = mysqlDB.PingContext(ctx); err != nil {
-		return fmt.Errorf("failed to ping database: %w", err)
+		return types.NewClientError(fmt.Errorf("failed to ping database: %w", err))
 	}
 
 	if config.Query != "" {
 		_, err = mysqlDB.QueryContext(ctx, config.Query)
 		if err != nil {
-			return fmt.Errorf("query execution failed: %w", err)
+			return types.NewClientError(fmt.Errorf("query execution failed: %w", err))
 		}
 	}
 

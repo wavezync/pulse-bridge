@@ -4,19 +4,19 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"wavezync/pulse-bridge/internal/types"
 
 	"github.com/redis/go-redis/v9"
 )
 
-// ExecRedisQuery executes a Redis command or performs a connection test if no command is provided
-func ExecRedisQuery(useConnString bool, config DatabaseClientConfig, command ...string) error {
+func ExecRedisQuery(useConnString bool, config DatabaseClientConfig, command ...string) *types.MonitorError {
 	var options *redis.Options
 	var err error
 
 	if useConnString {
 		options, err = redis.ParseURL(config.ConnString)
 		if err != nil {
-			return fmt.Errorf("failed to parse Redis connection string: %w", err)
+			return types.NewConfigError(fmt.Errorf("failed to parse Redis connection string: %w", err))
 		}
 	} else {
 		options = &redis.Options{
@@ -43,13 +43,13 @@ func ExecRedisQuery(useConnString bool, config DatabaseClientConfig, command ...
 
 	_, err = redisClient.Ping(ctx).Result()
 	if err != nil {
-		return fmt.Errorf("redis connection test failed: %w", err)
+		return types.NewClientError(fmt.Errorf("redis connection test failed: %w", err))
 	}
 
 	if len(command) > 0 && command[0] != "" {
 		cmd := redisClient.Do(ctx, command)
 		if cmd.Err() != nil {
-			return fmt.Errorf("redis command execution failed: %w", cmd.Err())
+			return types.NewClientError(fmt.Errorf("redis command execution failed: %w", cmd.Err()))
 		}
 	}
 

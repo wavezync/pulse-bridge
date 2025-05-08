@@ -2,9 +2,9 @@ package register
 
 import (
 	"time"
-	"wavezync/pulse-bridge/internal/cache"
 	"wavezync/pulse-bridge/internal/config"
 	"wavezync/pulse-bridge/internal/monitor"
+	"wavezync/pulse-bridge/internal/types"
 
 	"github.com/rs/zerolog/log"
 )
@@ -62,36 +62,22 @@ func monitoringTimer(mntr *config.Monitor) {
 	resultChan := make(chan ResultChanStruct)
 
 	go func() {
-		var err error
+		var mntrErr *types.MonitorError
 		startTime := time.Now()
 
 		switch mntr.Type {
 		case "http":
-			err = monitor.HttpMonitor(mntr)
+			mntrErr = monitor.HttpMonitor(mntr)
 		case "database":
-			err = monitor.DatabaseMonitor(mntr)
+			mntrErr = monitor.DatabaseMonitor(mntr)
 		}
 
 		duration := time.Since(startTime)
 
-		// Consecutive successes logic
-		oldResponse, isExisting := cache.DefaultMonitorCache.GetMonitorStatus(mntr.Name)
-		consecutiveSuccesses := 0
-		if err == nil {
-			if isExisting {
-				consecutiveSuccesses = oldResponse.Metrics.ConsecutiveSuccesses + 1
-			} else {
-				consecutiveSuccesses = 1
-			}
-		} else {
-			consecutiveSuccesses = 0
-		}
-
 		resultChan <- ResultChanStruct{
-			err:                  err,
+			err:                  mntrErr,
 			mntr:                 mntr,
 			duration:             duration,
-			consecutiveSuccesses: consecutiveSuccesses,
 		}
 	}()
 

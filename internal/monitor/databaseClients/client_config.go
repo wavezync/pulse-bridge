@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"wavezync/pulse-bridge/internal/config"
+	"wavezync/pulse-bridge/internal/types"
 )
 
 type DatabaseClientConfig struct {
@@ -20,11 +21,11 @@ type DatabaseClientConfig struct {
 	ConnMaxLifetime time.Duration
 }
 
-func PrepareDBClientConfig(monitor *config.Monitor) (bool, DatabaseClientConfig, error) {
+func PrepareDBClientConfig(monitor *config.Monitor) (bool, DatabaseClientConfig, *types.MonitorError) {
 
 	timeout, err := time.ParseDuration(monitor.Timeout)
 	if err != nil {
-		return false, DatabaseClientConfig{}, fmt.Errorf("invalid timeout format: %w", err)
+		return false, DatabaseClientConfig{}, types.NewConfigError(fmt.Errorf("invalid timeout format: %w", err))
 	}
 
 	params := DatabaseClientConfig{
@@ -56,5 +57,5 @@ func PrepareDBClientConfig(monitor *config.Monitor) (bool, DatabaseClientConfig,
 		return false, params, nil
 	}
 
-	return false, DatabaseClientConfig{}, fmt.Errorf("either connection_string or host and port must be specified")
+	return false, DatabaseClientConfig{}, types.NewConfigError(fmt.Errorf("either connection_string or host and port must be specified"))
 }
