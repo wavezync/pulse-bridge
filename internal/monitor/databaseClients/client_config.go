@@ -30,16 +30,17 @@ func PrepareDBClientConfig(monitor *config.Monitor) (bool, DatabaseClientConfig,
 	params := DatabaseClientConfig{
 		Query:           monitor.Database.Query,
 		Timeout:         timeout,
-		MaxOpenConns:    1, // Default
-		MaxIdleConns:    0, // Default
+		MaxOpenConns:    1,
+		MaxIdleConns:    0,
 		ConnMaxLifetime: timeout,
 	}
 
-	hasConnString := monitor.Database.ConnectionString != nil && *monitor.Database.ConnectionString != ""
+	hasConnString := monitor.Database.ConnectionString != nil && *monitor.Database.ConnectionString != "" && monitor.Database.Driver != ""
 
 	hasIndividualParams := monitor.Database.Host != nil && *monitor.Database.Host != "" &&
 		monitor.Database.Port != nil && *monitor.Database.Port != "" &&
-		monitor.Database.Username != nil && *monitor.Database.Username != "" &&
+		((monitor.Database.Username != nil && *monitor.Database.Username != "") ||
+			(monitor.Database.Driver == "redis")) &&
 		monitor.Database.Password != nil && *monitor.Database.Password != "" &&
 		monitor.Database.Database != nil && *monitor.Database.Database != ""
 

@@ -23,12 +23,10 @@ func ExecMysqlQuery(useConnString bool, config DatabaseClientConfig) error {
 	}
 	defer mysqlDB.Close()
 
-	// Apply connection pool settings
 	mysqlDB.SetConnMaxLifetime(config.ConnMaxLifetime)
 	mysqlDB.SetMaxOpenConns(config.MaxOpenConns)
 	mysqlDB.SetMaxIdleConns(config.MaxIdleConns)
 
-	// Set connection timeout
 	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
 	defer cancel()
 
@@ -36,9 +34,11 @@ func ExecMysqlQuery(useConnString bool, config DatabaseClientConfig) error {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	_, err = mysqlDB.QueryContext(ctx, config.Query)
-	if err != nil {
-		return fmt.Errorf("query execution failed: %w", err)
+	if config.Query != "" {
+		_, err = mysqlDB.QueryContext(ctx, config.Query)
+		if err != nil {
+			return fmt.Errorf("query execution failed: %w", err)
+		}
 	}
 
 	return nil

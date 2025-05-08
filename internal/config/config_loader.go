@@ -1,6 +1,8 @@
 package config
 
 import (
+	"encoding/json"
+	"fmt"
 	"wavezync/pulse-bridge/internal/env"
 
 	"github.com/rs/zerolog/log"
@@ -22,13 +24,18 @@ func Init(configPath string, envConfig *env.Config) (*Config, error) {
 		log.Fatal().Err(err).Str("path", configPath).Msg("Failed to read config file")
 	}
 
+	rawConfig := v.AllSettings()
+
+	prettyJSON, err := json.MarshalIndent(rawConfig, "", "  ")
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to marshal config")
+	} else {
+		fmt.Println(string(prettyJSON))
+	}
+
 	if err := v.Unmarshal(&config); err != nil {
 		return nil, err
 	}
-
-	log.Info().
-		Interface("config", config).
-		Msg("Configuration loaded successfully")
 
 	return &config, nil
 }

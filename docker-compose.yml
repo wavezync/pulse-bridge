@@ -47,7 +47,7 @@ services:
     command: >
       redis-server
       --requirepass redispassword
-      --databases 1
+      --databases 2
     volumes:
       - redis-data:/data
     networks:

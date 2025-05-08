@@ -23,12 +23,10 @@ func ExecPgQuery(useConnString bool, config DatabaseClientConfig) error {
 	}
 	defer pgDB.Close()
 
-	// Apply connection pool settings
 	pgDB.SetConnMaxLifetime(config.ConnMaxLifetime)
 	pgDB.SetMaxOpenConns(config.MaxOpenConns)
 	pgDB.SetMaxIdleConns(config.MaxIdleConns)
 
-	// Set connection timeout
 	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
 	defer cancel()
 
@@ -36,9 +34,11 @@ func ExecPgQuery(useConnString bool, config DatabaseClientConfig) error {
 		return fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	_, err = pgDB.QueryContext(ctx, config.Query)
-	if err != nil {
-		return fmt.Errorf("query execution failed: %w", err)
+	if config.Query != "" {
+		_, err = pgDB.QueryContext(ctx, config.Query)
+		if err != nil {
+			return fmt.Errorf("query execution failed: %w", err)
+		}
 	}
 
 	return nil
