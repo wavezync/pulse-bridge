@@ -22,7 +22,8 @@ func Run(envConfig *env.Config) error {
 	register.SetRegister(cfg)
 
 	http.HandleFunc("/health", handler.Health)
-	http.HandleFunc("/status", handler.Status)
+	http.HandleFunc("/monitor/services", handler.MonitorServices)
+	http.HandleFunc("/monitor/services/", handler.MonitorServiceByName)
 
 	serverAddr := fmt.Sprintf("%s:%d", envConfig.Host, envConfig.Port)
 	log.Info().Str("address", serverAddr).Msg("Starting server")

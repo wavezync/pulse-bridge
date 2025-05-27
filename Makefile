@@ -15,7 +15,7 @@ run:
 
 dev:
 	@echo "Running in development mode..."
-	@$(GO) run . --config=config.dev.yml
+	@$(GO) run . --config=config.dev.yml --port=8082
 
 docker:
 	@echo "Building Docker image..."

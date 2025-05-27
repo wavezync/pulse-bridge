@@ -5,16 +5,17 @@ import (
 	"slices"
 	"wavezync/pulse-bridge/internal/config"
 	"wavezync/pulse-bridge/internal/monitor/databaseClients"
+	"wavezync/pulse-bridge/internal/types"
 )
 
-func DatabaseMonitor(monitor *config.Monitor) error {
+func DatabaseMonitor(monitor *config.Monitor) *types.MonitorError {
 	if monitor.Database == nil {
-		return fmt.Errorf("database configuration is missing")
+		return types.NewConfigError(fmt.Errorf("database configuration is missing"))
 	}
 
-	isSupported := slices.Contains([]string{"mysql", "mariadb", "postgres", "sqlite", "mssql"}, monitor.Database.Driver)
+	isSupported := slices.Contains([]string{"mysql", "mariadb", "postgres", "mssql", "redis"}, monitor.Database.Driver)
 	if !isSupported {
-		return fmt.Errorf("unsupported database driver: %s", monitor.Database.Driver)
+		return types.NewConfigError(fmt.Errorf("unsupported database driver: %s", monitor.Database.Driver))
 	}
 
 	useConnString, clientConfig, err := databaseClients.PrepareDBClientConfig(monitor)
@@ -29,7 +30,9 @@ func DatabaseMonitor(monitor *config.Monitor) error {
 		return databaseClients.ExecMysqlQuery(useConnString, clientConfig)
 	case "mssql":
 		return databaseClients.ExecMssqlQuery(useConnString, clientConfig)
+	case "redis":
+		return databaseClients.ExecRedisQuery(useConnString, clientConfig)
 	default:
-		return fmt.Errorf("driver %s is supported but not implemented yet", monitor.Database.Driver)
+		return types.NewConfigError(fmt.Errorf("driver %s is not supported yet", monitor.Database.Driver))
 	}
 }

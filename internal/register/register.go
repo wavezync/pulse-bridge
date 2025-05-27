@@ -4,15 +4,10 @@ import (
 	"time"
 	"wavezync/pulse-bridge/internal/config"
 	"wavezync/pulse-bridge/internal/monitor"
+	"wavezync/pulse-bridge/internal/types"
 
 	"github.com/rs/zerolog/log"
 )
-
-type ResultChanStruct struct {
-	err      error
-	mntr     *config.Monitor
-	duration time.Duration
-}
 
 func SetRegister(cfg *config.Config) {
 	for _, monitor := range cfg.Monitors {
@@ -38,6 +33,10 @@ func runMonitorWorker(mntr *config.Monitor) {
 		return
 	}
 
+	// Run the monitor check immediately first
+	monitoringTimer(mntr)
+
+	// Then set up the ticker for subsequent checks
 	ticker := time.NewTicker(duration)
 	defer ticker.Stop()
 
@@ -63,21 +62,22 @@ func monitoringTimer(mntr *config.Monitor) {
 	resultChan := make(chan ResultChanStruct)
 
 	go func() {
-		var err error
+		var mntrErr *types.MonitorError
 		startTime := time.Now()
 
 		switch mntr.Type {
 		case "http":
-			err = monitor.HttpMonitor(mntr)
+			mntrErr = monitor.HttpMonitor(mntr)
 		case "database":
-			err = monitor.DatabaseMonitor(mntr)
+			mntrErr = monitor.DatabaseMonitor(mntr)
 		}
 
 		duration := time.Since(startTime)
+
 		resultChan <- ResultChanStruct{
-			err:      err,
-			mntr:     mntr,
-			duration: duration,
+			err:                  mntrErr,
+			mntr:                 mntr,
+			duration:             duration,
 		}
 	}()
 

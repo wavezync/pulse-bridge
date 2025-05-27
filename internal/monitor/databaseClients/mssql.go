@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"wavezync/pulse-bridge/internal/types"
 
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-func ExecMssqlQuery(useConnString bool, config DatabaseClientConfig) error {
+func ExecMssqlQuery(useConnString bool, config DatabaseClientConfig) *types.MonitorError {
 	var err error
 
 	connectionStr := config.ConnString
@@ -19,26 +20,26 @@ func ExecMssqlQuery(useConnString bool, config DatabaseClientConfig) error {
 
 	mssqlDB, err := sql.Open("sqlserver", connectionStr)
 	if err != nil {
-		return fmt.Errorf("failed to open database connection: %w", err)
+		return types.NewConfigError(fmt.Errorf("failed to open database connection: %w", err))
 	}
 	defer mssqlDB.Close()
 
-	// Apply connection pool settings
 	mssqlDB.SetConnMaxLifetime(config.ConnMaxLifetime)
 	mssqlDB.SetMaxOpenConns(config.MaxOpenConns)
 	mssqlDB.SetMaxIdleConns(config.MaxIdleConns)
 
-	// Set connection timeout
 	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
 	defer cancel()
 
 	if err = mssqlDB.PingContext(ctx); err != nil {
-		return fmt.Errorf("failed to ping database: %w", err)
+		return types.NewClientError(fmt.Errorf("failed to ping database: %w", err))
 	}
 
-	_, err = mssqlDB.QueryContext(ctx, config.Query)
-	if err != nil {
-		return fmt.Errorf("query execution failed: %w", err)
+	if config.Query != "" {
+		_, err = mssqlDB.QueryContext(ctx, config.Query)
+		if err != nil {
+			return types.NewClientError(fmt.Errorf("query execution failed: %w", err))
+		}
 	}
 
 	return nil
