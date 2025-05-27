@@ -52,7 +52,6 @@ monitors:
       host: "redis-db"
       port: 6379
       password: "redispassword"
-      username: "redisuser"
 
   # MSSQL monitoring
   - name: "MSSQL Service" 

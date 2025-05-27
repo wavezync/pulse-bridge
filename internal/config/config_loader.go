@@ -37,5 +37,9 @@ func Init(configPath string, envConfig *env.Config) (*Config, error) {
 		return nil, err
 	}
 
+	if err := ValidateConfig(&config); err != nil {
+		return nil, err
+	}
+
 	return &config, nil
 }
