@@ -75,9 +75,9 @@ func monitoringTimer(mntr *config.Monitor) {
 		duration := time.Since(startTime)
 
 		resultChan <- ResultChanStruct{
-			err:                  mntrErr,
-			mntr:                 mntr,
-			duration:             duration,
+			err:      mntrErr,
+			mntr:     mntr,
+			duration: duration,
 		}
 	}()
 

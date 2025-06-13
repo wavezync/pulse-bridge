@@ -7,7 +7,7 @@ import (
 )
 
 type ResultChanStruct struct {
-	err                  *types.MonitorError
-	mntr                 *config.Monitor
-	duration             time.Duration
+	err      *types.MonitorError
+	mntr     *config.Monitor
+	duration time.Duration
 }
