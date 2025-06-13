@@ -20,3 +20,6 @@ docker:
 	@docker build ./ -t pulsebridge --no-cache
 	@docker compose up -d
 	@echo "Docker image built and containers started."
+
+test:
+	@$(GO) test ./...
