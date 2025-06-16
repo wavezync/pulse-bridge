@@ -66,7 +66,7 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - pulsebridge-network
-
+ 
   mariadb-db:
     image: mariadb:latest
     container_name: mariadb-db

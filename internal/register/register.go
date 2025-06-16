@@ -23,7 +23,11 @@ func SetRegister(cfg *config.Config) {
 }
 
 // runMonitorWorker spawns a persistent worker that runs monitoring at specified intervals
-func runMonitorWorker(mntr *config.Monitor) {
+func runMonitorWorker(mntr *config.Monitor, monitoringTimerFn ...func(*config.Monitor)) {
+	timerFn := monitoringTimer
+	if len(monitoringTimerFn) > 0 {
+		timerFn = monitoringTimerFn[0]
+	}
 	duration, err := time.ParseDuration(mntr.Interval)
 	if err != nil {
 		log.Error().
@@ -34,14 +38,14 @@ func runMonitorWorker(mntr *config.Monitor) {
 	}
 
 	// Run the monitor check immediately first
-	monitoringTimer(mntr)
+	timerFn(mntr)
 
 	// Then set up the ticker for subsequent checks
 	ticker := time.NewTicker(duration)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		monitoringTimer(mntr)
+		timerFn(mntr)
 	}
 }
 
@@ -59,7 +63,7 @@ func monitoringTimer(mntr *config.Monitor) {
 	timer := time.NewTimer(operationTimeout)
 	defer timer.Stop()
 
-	resultChan := make(chan ResultChanStruct)
+	resultChan := make(chan types.ResultChanStruct)
 
 	go func() {
 		var mntrErr *types.MonitorError
@@ -74,10 +78,10 @@ func monitoringTimer(mntr *config.Monitor) {
 
 		duration := time.Since(startTime)
 
-		resultChan <- ResultChanStruct{
-			err:                  mntrErr,
-			mntr:                 mntr,
-			duration:             duration,
+		resultChan <- types.ResultChanStruct{
+			Err:      mntrErr,
+			Mntr:     mntr,
+			Duration: duration,
 		}
 	}()
 
