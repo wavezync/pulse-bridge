@@ -10,4 +10,3 @@ With Pulse Bridge, you get:
 - 🛡 Reliable & Secure – Built with stability and security in mind for mission-critical applications.
 
 Keep your systems transparent, your teams informed, and your users confident with Pulse Bridge – the heartbeat of your service health monitoring. 💙⚡
-

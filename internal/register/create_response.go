@@ -8,41 +8,41 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func createResponse(result ResultChanStruct) types.MonitorResponse {
+func createResponse(result types.ResultChanStruct) types.MonitorResponse {
 	var newResponse types.MonitorResponse
 
-	if result.err != nil {
+	if result.Err != nil {
 		log.Info().
-			Str("monitor", result.mntr.Name).
+			Str("monitor", result.Mntr.Name).
 			Msg("Monitor check failed")
 	} else {
 		log.Info().
-			Str("monitor", result.mntr.Name).
+			Str("monitor", result.Mntr.Name).
 			Msg("Monitor check successful")
 	}
 
-	oldResponse, isExisting := cache.DefaultMonitorCache.GetMonitorStatus(result.mntr.Name)
+	oldResponse, isExisting := cache.DefaultMonitorCache.GetMonitorStatus(result.Mntr.Name)
 
-	lastSuccess := getLastSuccess(result.err, isExisting, oldResponse, time.Now().String())
-	consecutiveSuccesses := getConsecutiveSuccesses(result.err, isExisting, oldResponse)
-	lastError := getLastError(result.err, isExisting, oldResponse)
-	status := statusFromError(result.err)
+	lastSuccess := getLastSuccess(result.Err, isExisting, oldResponse, time.Now().String())
+	consecutiveSuccesses := getConsecutiveSuccesses(result.Err, isExisting, oldResponse)
+	lastError := getLastError(result.Err, isExisting, oldResponse)
+	status := statusFromError(result.Err)
 
 	newResponse = types.MonitorResponse{
-		Service:     result.mntr.Name,
+		Service:     result.Mntr.Name,
 		Status:      status,
-		Type:        result.mntr.Type,
+		Type:        result.Mntr.Type,
 		LastCheck:   time.Now().String(),
 		LastSuccess: lastSuccess,
 		Metrics: types.Metrics{
-			ResponseTimeMs:       int(result.duration.Milliseconds()),
-			CheckInterval:        result.mntr.Interval,
+			ResponseTimeMs:       int(result.Duration.Milliseconds()),
+			CheckInterval:        result.Mntr.Interval,
 			ConsecutiveSuccesses: consecutiveSuccesses,
 		},
 		LastError: lastError,
 	}
 
-	cache.DefaultMonitorCache.SetMonitorStatus(result.mntr.Name, newResponse)
+	cache.DefaultMonitorCache.SetMonitorStatus(result.Mntr.Name, newResponse)
 	return newResponse
 }
 

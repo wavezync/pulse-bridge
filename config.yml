@@ -48,7 +48,7 @@ monitors:
     timeout: "5s"
     database:
       driver: "redis"
-      database: 0
+      database: "1"
       host: "redis-db"
       port: 6379
       password: "redispassword"

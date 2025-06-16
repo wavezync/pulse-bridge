@@ -17,7 +17,6 @@ dev:
 docker:
 	@docker compose down -v
 	@docker rmi pulsebridge -f || true
-	@docker build ./ -t pulsebridge --no-cache
 	@docker compose up -d
 	@echo "Docker image built and containers started."
 
