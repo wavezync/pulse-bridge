@@ -7,6 +7,12 @@ Pulse Bridge is a lightweight, powerful uptime monitoring tool for your internal
 Simply create a configuration file to define multiple services and databases to be checked at custom intervals. Pulse Bridge records the health status of each service and database, and provides a simple HTTP API to query their status.
 
 #### Currently supports
+- HTTP services
+- PostgreSQL
+- MySQL
+- MariaDB
+- Redis
+- MSSQL
 
 ## Monitoring
 
