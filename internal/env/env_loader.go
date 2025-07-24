@@ -17,7 +17,7 @@ func Init() *Config {
 
 func loadConfig() {
 	AppConfig = Config{
-		ConfigPath: GetEnv("PULSE_BRIDGE_CONFIG", ""),
+		ConfigPath: GetEnv("PULSE_BRIDGE_CONFIG", "config.yml"),
 		Host:       GetEnv("HOST", "0.0.0.0"),
 		Port:       GetEnvInt("PORT", 8080),
 	}
