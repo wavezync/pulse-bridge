@@ -4,10 +4,30 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
 
 jobs:
-  build-and-push:
+  build-go:
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Test
+        run: go test -v ./...
+
+  build-and-push:
+    needs: build-go
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_type == 'tag' }}
 
     permissions:
       contents: read
