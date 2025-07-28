@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"fmt"
 	"wavezync/pulse-bridge/cmd/pulsebridge"
 	"wavezync/pulse-bridge/internal/env"
+	"wavezync/pulse-bridge/internal/version"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -16,10 +18,16 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "pulsebridge",
-	Short: "pulsebridge is a powerful uptime monitoring tool",
-	Long:  `pulsebridge exposes internal service status via HTTP, enabling seamless integration with external monitoring tools like Atlassian Statuspage.`,
+	Use:     "pulsebridge",
+	Short:   "pulsebridge is a powerful uptime monitoring tool",
+	Long:    `pulsebridge exposes internal service status via HTTP, enabling seamless integration with external monitoring tools like Atlassian Statuspage.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		versionFlag, _ := cmd.Flags().GetBool("version")
+		if versionFlag {
+			fmt.Println(version.GetVersionWithBuildInfo())
+			return nil
+		}
+
 		envConfig := env.Init()
 
 		if cmd.Flags().Changed("config") {
@@ -40,6 +48,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&configPath, "config", "config.yml", "Path to configuration file")
 	rootCmd.PersistentFlags().StringVar(&host, "host", "0.0.0.0", "Host address to bind the server")
 	rootCmd.PersistentFlags().IntVar(&port, "port", 8080, "Port to run the server")
+	rootCmd.PersistentFlags().BoolP("version", "v", false, "Print the version and exit")
 }
 
 func Execute() {
