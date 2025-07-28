@@ -14,13 +14,6 @@ Simply create a configuration file to define multiple services and databases to 
 - Redis
 - MSSQL
 
-- HTTP - Headers and all that
-- Postgresql
-- MySQL
-- MariaDB
-- MSSQL
-- Redis
-
 ## Deployment
 
 
