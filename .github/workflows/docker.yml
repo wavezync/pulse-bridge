@@ -1,33 +1,11 @@
 name: Build and Push Docker Image to GHCR
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
-  build-go:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.24'
-
-      - name: Build
-        run: go build -v ./...
-
-      - name: Test
-        run: go test -v ./...
-
   build-and-push:
-    needs: build-go
     runs-on: ubuntu-latest
-    if: ${{ github.ref_type == 'tag' }}
 
     permissions:
       contents: read
@@ -56,6 +34,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/pulsebridge:${{ steps.extract_version.outputs.VERSION }}
+          tags: ghcr.io/${{ github.repository_owner }}/pulse-bridge:${{ steps.extract_version.outputs.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
