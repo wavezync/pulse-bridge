@@ -14,13 +14,120 @@ Simply create a configuration file to define multiple services and databases to 
 - Redis
 - MSSQL
 
-## Monitoring
+- HTTP - Headers and all that
+- Postgresql
+- MySQL
+- MariaDB
+- MSSQL
+- Redis
 
+## Deployment
+
+
+Deployment options:
+- [Dockerfile](https://github.com/wavezync/pulse-bridge/blob/main/Dockerfile) – Self-hosted container registry or Docker Hub image
+- Kubernetes
+
+### 💻 Deploy locally (Build from source)
+
+```bash
+git clone https://github.com/wavezync/pulse-bridge.git
+cd pulse-bridge
+go run .
+```
+
+### 🐳  Deploy with Docker
+
+```bash
+docker pull ghcr.io/wavezync/pulsebridge:latest
+docker run -d -p 8080:8080 ghcr.io/wavezync/pulsebridge:latest
+```
+
+Update the [config.yml](https://github.com/wavezync/pulse-bridge/blob/main/config.yml) in the project root to add your services and databases. Then rebuild the binary or Docker image and run it.
+
+### 🚢 Deploy with Kubernetes
+
+There are many ways to deploy Pulse Bridge on Kubernetes. Below is a simple example using a Deployment, Service, and ConfigMap.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pulse-bridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pulse-bridge
+  template:
+    metadata:
+      labels:
+        app: pulse-bridge
+    spec:
+      containers:
+      - name: pulse-bridge
+        image: wavezync/pulse-bridge:latest # Replace with your image if needed (recommended)
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PULSE_BRIDGE_CONFIG
+          value: "/config/config.yml"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: pulse-bridge-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pulse-bridge
+spec:
+  selector:
+    app: pulse-bridge
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pulse-bridge-config
+data:
+  config.yml: |
+    # Paste your Pulse Bridge YAML config here. See the guide below for configuration details.
+```
+
+
+### Environment Configuration
+
+1. .env file:
+
+A .env file is **optional** but can be configured:
+
+```bash
+PULSE_BRIDGE_CONFIG=mycustomconfig.yml # Sets the custom configuration file path, defaults to config.yml
+HOST=0.0.0.0 # Defaults to 0.0.0.0
+PORT=8080 # Defaults to 8080 
+```
+
+2. CLI arguments:
+
+```bash
+pb --config=mycustomconfig.yml --port=8080 --host=0.0.0.0
+```
+
+> **Note:** CLI arguments take priority over `.env` file settings.
 CLI > .env
 
 
 
-## Configuration
+## Usage
+
+### Configuring your services
 
 The configuration file is a YAML file where you can define the services and databases you want to monitor.
 
@@ -101,7 +208,8 @@ monitors:
       query: "SELECT 1"
 ```
 
-## Monitoring
+### Monitoring
+
 
 You can check the status of your service from the pulse bridge API at the routes:
 
