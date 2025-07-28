@@ -33,10 +33,8 @@ go run .
 ### 🐳  Deploy with Docker
 
 ```bash
-git clone https://github.com/wavezync/pulse-bridge.git
-cd pulse-bridge
-docker build -t pulse-bridge .
-docker run -d -p 8080:8080 pulse-bridge
+docker pull ghcr.io/wavezync/pulsebridge:latest
+docker run -d -p 8080:8080 ghcr.io/wavezync/pulsebridge:latest
 ```
 
 Update the [config.yml](https://github.com/wavezync/pulse-bridge/blob/main/config.yml) in the project root to add your services and databases. Then rebuild the binary or Docker image and run it.
