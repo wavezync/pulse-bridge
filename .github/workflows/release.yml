@@ -4,43 +4,93 @@ on:
   push:
     tags:
       - "v*.*.*"
-  workflow_dispatch:
 
 jobs:
-  release-binaries:
-    name: Generate cross-platform builds
+  lint-and-test:
+    name: Lint and test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
 
-      - name: Generate build files
-        uses: thatisuday/go-cross-build@v1
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          platforms: |
-            linux/amd64,
-            linux/386,
-            linux/ppc64,
-            linux/ppc64le,
-            linux/mips64,
-            linux/mips64le,
-            darwin/amd64,
-            windows/amd64,
-            windows/386,
-            freebsd/amd64,
-            netbsd/amd64,
-            openbsd/amd64,
-            dragonfly/amd64,
-            plan9/amd64,
-            plan9/386,
-            solaris/amd64
-          package: ""
-          name: "pulse-bridge"
-          compress: "false"
-          dest: "dist"
+          go-version: "1.24"
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run go fmt check
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "The following files are not formatted:"
+            gofmt -s -l .
+            exit 1
+          fi
+
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Build check
+        run: go build -v .
+
+  release-binaries:
+    name: Generate cross-platform builds and create release
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for version detection
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Generate build files using build script
+        run: |
+          chmod +x scripts/build.sh
+          ./scripts/build.sh
+
+      - name: Create draft release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: builds/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-push-docker-image:
     runs-on: ubuntu-latest
+    needs: lint-and-test
 
     permissions:
       contents: read
@@ -65,7 +115,7 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image with GHA cache
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
