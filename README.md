@@ -32,8 +32,8 @@ go run .
 ### 🐳  Deploy with Docker
 
 ```bash
-docker pull ghcr.io/wavezync/pulsebridge:latest
-docker run -d -p 8080:8080 ghcr.io/wavezync/pulsebridge:latest
+docker pull ghcr.io/wavezync/pulse-bridge:latest
+docker run -d -p 8080:8080 ghcr.io/wavezync/pulse-bridge:latest
 ```
 
 Update the [config.yml](https://github.com/wavezync/pulse-bridge/blob/main/config.yml) in the project root to add your services and databases. Then rebuild the binary or Docker image and run it.
@@ -110,7 +110,7 @@ PORT=8080 # Defaults to 8080
 2. CLI arguments:
 
 ```bash
-pb --config=mycustomconfig.yml --port=8080 --host=0.0.0.0
+pulse-bridge --config=mycustomconfig.yml --port=8080 --host=0.0.0.0
 ```
 
 > **Note:** CLI arguments take priority over `.env` file settings.

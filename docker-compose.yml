@@ -1,9 +1,9 @@
 services:
-  pulsebridge:
+  pulse-bridge:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: pulsebridge
+    container_name: pulse-bridge
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -13,7 +13,7 @@ services:
     volumes:
       - ./config.yml:/app/config.yml:ro
     networks:
-      - pulsebridge-network
+      - pulse-bridge-network
 
   helloworld-http:
     image: testcontainers/helloworld:latest
@@ -21,8 +21,8 @@ services:
     ports:
       - "8081:8080"
     networks:
-      - pulsebridge-network
-  
+      - pulse-bridge-network
+
   postgres-db:
     image: postgres:latest
     container_name: postgres-db
@@ -36,7 +36,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
-      - pulsebridge-network
+      - pulse-bridge-network
 
   redis-db:
     image: redis:latest
@@ -51,7 +51,7 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - pulsebridge-network
+      - pulse-bridge-network
 
   mysql-db:
     image: mysql:latest
@@ -65,8 +65,8 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - pulsebridge-network
- 
+      - pulse-bridge-network
+
   mariadb-db:
     image: mariadb:latest
     container_name: mariadb-db
@@ -79,7 +79,7 @@ services:
     volumes:
       - mariadb-data:/var/lib/mysql
     networks:
-      - pulsebridge-network
+      - pulse-bridge-network
 
   mssql-db:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -93,10 +93,10 @@ services:
     volumes:
       - mssql-data:/var/opt/mssql
     networks:
-      - pulsebridge-network
+      - pulse-bridge-network
 
 networks:
-  pulsebridge-network:
+  pulse-bridge-network:
     driver: bridge
 
 volumes:
