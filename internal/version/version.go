@@ -61,7 +61,7 @@ func getCommit(info *debug.BuildInfo) string {
 	return ""
 }
 
-// GetVersion returns the version of pulsebridge. This should be injected at build time
+// GetVersion returns the version of pulse-bridge. This should be injected at build time
 // using: -ldflags="-X 'wavezync/pulse-bridge/internal/version.version=vX.X.X'".
 // If not provided, it will attempt to derive a version from VCS info.
 func GetVersion() string {
