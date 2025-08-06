@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pulse-bridge
+description: Open-source service and database health monitoring API with built-in uptime tracking and integrations for status pages.
+type: application
+version: 0.1.0
+appVersion: "v0.0.1"

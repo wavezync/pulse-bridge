@@ -1,0 +1,18 @@
+# Enable and configure an ingress for the Pulse Bridge service
+ingress:
+  enabled: false
+
+# configContent should contain all the data in a config.yml file
+# Example can be seen in https://github.com/wavezync/pulse-bridge/blob/main/config.yml
+configContent:
+  monitors:
+    - name: "HTTP Service"
+      type: "http"
+      interval: "30s"
+      timeout: "5s"
+      http:
+        url: "http://helloworld-http:8080/ping"
+        method: "GET"
+        headers:
+          Authorization: "Bearer secret-token"
+          Content-Type: "application/json"
