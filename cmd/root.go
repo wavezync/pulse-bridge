@@ -18,9 +18,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:     "pulse-bridge",
-	Short:   "pulse-bridge is a powerful uptime monitoring tool",
-	Long:    `pulse-bridge exposes internal service status via HTTP, enabling seamless integration with external monitoring tools like Atlassian Statuspage.`,
+	Use:   "pulse-bridge",
+	Short: "pulse-bridge is a powerful uptime monitoring tool",
+	Long:  `pulse-bridge exposes internal service status via HTTP, enabling seamless integration with external monitoring tools like Atlassian Statuspage.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		versionFlag, _ := cmd.Flags().GetBool("version")
 		if versionFlag {

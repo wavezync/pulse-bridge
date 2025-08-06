@@ -9,7 +9,7 @@ import (
 
 var (
 	version string
-	tag     string 
+	tag     string
 	commit  string
 	dirty   bool
 )
