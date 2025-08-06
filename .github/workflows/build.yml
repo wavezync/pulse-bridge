@@ -9,6 +9,10 @@ on:
 jobs:
   build-go:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
