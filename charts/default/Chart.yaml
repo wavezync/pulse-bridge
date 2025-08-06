@@ -4,11 +4,3 @@ description: Open-source service and database health monitoring API with built-i
 type: application
 version: 0.1.0
 appVersion: "v0.0.1"
-
-maintainers:
-  - name: kasvith
-    url: https://github.com/kasvith
-  - name: sathirak
-    url: https://github.com/sathirak
-  - name: ShehanChamudith
-    url: https://github.com/ShehanChamudith
