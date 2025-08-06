@@ -160,7 +160,7 @@ show_help() {
     echo "  -c, --clean          Clean build directory before building"
     echo "  --clean-only         Clean build directory and exit (no building)"
     echo "  -p, --platform OS/ARCH   Build for specific platform (e.g., linux/amd64)"
-    echo "  -j, --jobs N         Number of parallel build jobs (default: all platforms in parallel)"
+    echo "  -j, --jobs N         Number of parallel build jobs (default: auto-detect CPU cores)"
     echo "  -l, --list           List supported platforms"
     echo "  -v, --verbose        Enable verbose output"
     echo ""
@@ -186,7 +186,8 @@ main() {
     local clean_only_flag=false
     local specific_platform=""
     local verbose_flag=false
-    local max_jobs=0  # 0 means unlimited (all platforms in parallel)
+    # Default max_jobs to number of CPU cores
+    local max_jobs=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo "4")
     
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
@@ -277,79 +278,54 @@ main() {
         
         build_platform "$specific_platform"
     else
-        # Build for all platforms in parallel
-        if [ "$max_jobs" -eq 0 ]; then
-            print_status "Starting parallel builds for all platforms..."
-            local pids=()
-            local failed_builds=0
-            
-            # Start all builds in parallel (unlimited)
-            for platform in "${PLATFORMS[@]}"; do
+        # Build for all platforms in parallel with CPU core limit
+        print_status "Starting parallel builds with maximum $max_jobs jobs (auto-detected CPU cores)..."
+        local pids=()
+        local platform_names=()
+        local failed_builds=0
+        local platform_index=0
+        
+        # Build with job limit
+        while [ $platform_index -lt ${#PLATFORMS[@]} ]; do
+            # Start jobs up to the limit
+            while [ ${#pids[@]} -lt $max_jobs ] && [ $platform_index -lt ${#PLATFORMS[@]} ]; do
+                local platform=${PLATFORMS[$platform_index]}
                 build_platform "$platform" &
                 pids+=($!)
+                platform_names+=("$platform")
+                ((platform_index++))
             done
             
-            # Wait for all builds to complete and check results
-            for i in "${!pids[@]}"; do
-                local pid=${pids[$i]}
-                local platform=${PLATFORMS[$i]}
+            # Wait for at least one job to complete
+            if [ ${#pids[@]} -gt 0 ]; then
+                local completed_pid=${pids[0]}
+                local completed_platform=${platform_names[0]}
                 
-                if wait "$pid"; then
-                    print_status "✓ ${platform} build completed successfully"
+                if wait "$completed_pid"; then
+                    print_status "✓ ${completed_platform} build completed successfully"
                 else
-                    print_error "✗ ${platform} build failed"
+                    print_error "✗ ${completed_platform} build failed"
                     ((failed_builds++))
                 fi
-            done
-        else
-            print_status "Starting parallel builds with maximum $max_jobs jobs..."
-            local pids=()
-            local platform_names=()
-            local failed_builds=0
-            local platform_index=0
-            
-            # Build with job limit
-            while [ $platform_index -lt ${#PLATFORMS[@]} ]; do
-                # Start jobs up to the limit
-                while [ ${#pids[@]} -lt $max_jobs ] && [ $platform_index -lt ${#PLATFORMS[@]} ]; do
-                    local platform=${PLATFORMS[$platform_index]}
-                    build_platform "$platform" &
-                    pids+=($!)
-                    platform_names+=("$platform")
-                    ((platform_index++))
-                done
                 
-                # Wait for at least one job to complete
-                if [ ${#pids[@]} -gt 0 ]; then
-                    local completed_pid=${pids[0]}
-                    local completed_platform=${platform_names[0]}
-                    
-                    if wait "$completed_pid"; then
-                        print_status "✓ ${completed_platform} build completed successfully"
-                    else
-                        print_error "✗ ${completed_platform} build failed"
-                        ((failed_builds++))
-                    fi
-                    
-                    # Remove completed job from tracking
-                    pids=("${pids[@]:1}")
-                    platform_names=("${platform_names[@]:1}")
-                fi
-            done
+                # Remove completed job from tracking
+                pids=("${pids[@]:1}")
+                platform_names=("${platform_names[@]:1}")
+            fi
+        done
+        
+        # Wait for remaining jobs
+        for i in "${!pids[@]}"; do
+            local pid=${pids[$i]}
+            local platform=${platform_names[$i]}
             
-            # Wait for remaining jobs
-            for i in "${!pids[@]}"; do
-                local pid=${pids[$i]}
-                local platform=${platform_names[$i]}
-                
-                if wait "$pid"; then
-                    print_status "✓ ${platform} build completed successfully"
-                else
-                    print_error "✗ ${platform} build failed"
-                    ((failed_builds++))
-                fi
-            done
-        fi
+            if wait "$pid"; then
+                print_status "✓ ${platform} build completed successfully"
+            else
+                print_error "✗ ${platform} build failed"
+                ((failed_builds++))
+            fi
+        done
         
         if [ $failed_builds -gt 0 ]; then
             print_warning "${failed_builds} builds failed"

@@ -1,12 +1,16 @@
 # Pulse Bridge
 
+[![Build](https://github.com/wavezync/pulse-bridge/actions/workflows/build.yml/badge.svg)](https://github.com/wavezync/pulse-bridge/actions/workflows/build.yml) ![GitHub Release](https://img.shields.io/github/v/release/wavezync/pulse-bridge)
+ [![Docker](https://ghcr-badge.egpl.dev/wavezync/pulse-bridge/tags?color=%2344cc11&ignore=latest&n=3&label=image+tags&trim=)](https://github.com/wavezync/pulse-bridge/pkgs/container/pulse-bridge)
+
 Pulse Bridge is a lightweight, powerful uptime monitoring tool for your internal infrastructure (APIs, databases, etc.) and external platforms.
 
 ## How it works
 
 Simply create a configuration file to define multiple services and databases to be checked at custom intervals. Pulse Bridge records the health status of each service and database, and provides a simple HTTP API to query their status.
 
-#### Currently supports
+### Currently supports
+
 - HTTP services
 - PostgreSQL
 - MySQL
@@ -16,12 +20,13 @@ Simply create a configuration file to define multiple services and databases to 
 
 ## Deployment
 
+Pulse Bridge can be deployed in various ways to suit your needs:
 
-Deployment options:
-- [Dockerfile](https://github.com/wavezync/pulse-bridge/blob/main/Dockerfile) – Self-hosted container registry or Docker Hub image
+- Binary for your [platform](https://github.com/wavezync/pulse-bridge/releases)
+- Docker
 - Kubernetes
 
-### 💻 Deploy locally (Build from source)
+### 💻 Run locally (Build from source)
 
 ```bash
 git clone https://github.com/wavezync/pulse-bridge.git
@@ -93,7 +98,6 @@ data:
   config.yml: |
     # Paste your Pulse Bridge YAML config here. See the guide below for configuration details.
 ```
-
 
 ### Environment Configuration
 
