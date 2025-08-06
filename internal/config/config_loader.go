@@ -29,7 +29,7 @@ func Init(configPath string, envConfig *env.Config) (*Config, error) {
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to marshal config")
 	} else {
-		log.Info().RawJSON("config", prettyJSON).Msg("Loaded config")
+		log.Debug().RawJSON("config", prettyJSON).Msg("Loaded config")
 	}
 
 	if err := v.Unmarshal(&config); err != nil {
