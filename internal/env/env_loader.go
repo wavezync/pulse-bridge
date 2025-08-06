@@ -9,7 +9,7 @@ func Get() *Config {
 }
 
 func Init() *Config {
-	godotenv.Load(".env")
+	_ = godotenv.Load(".env")
 	loadConfig()
 
 	return &AppConfig
