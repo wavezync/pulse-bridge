@@ -18,13 +18,21 @@ Simply create a configuration file to define multiple services and databases to 
 - Redis
 - MSSQL
 
-## Deployment
+## Installation
 
 Pulse Bridge can be deployed in various ways to suit your needs:
 
 - Binary for your [platform](https://github.com/wavezync/pulse-bridge/releases)
 - Docker
 - Kubernetes
+
+### Quick Install
+
+Install the latest version with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/wavezync/pulse-bridge/main/install.sh | bash
+```
 
 ### 💻 Run locally (Build from source)
 
