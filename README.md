@@ -26,7 +26,7 @@ Pulse Bridge can be deployed in various ways to suit your needs:
 - Docker
 - Kubernetes
 
-### Quick Install
+### Quick Install :zap:
 
 Install the latest version with a single command:
 
@@ -34,7 +34,7 @@ Install the latest version with a single command:
 curl -fsSL https://raw.githubusercontent.com/wavezync/pulse-bridge/main/install.sh | bash
 ```
 
-### 💻 Run locally (Build from source)
+### Run locally (Build from source) :computer:
 
 ```bash
 git clone https://github.com/wavezync/pulse-bridge.git
@@ -42,7 +42,7 @@ cd pulse-bridge
 go run .
 ```
 
-### 🐳  Deploy with Docker
+### Docker :whale:
 
 ```bash
 docker pull ghcr.io/wavezync/pulse-bridge:latest
@@ -51,7 +51,7 @@ docker run -d -p 8080:8080 ghcr.io/wavezync/pulse-bridge:latest
 
 Update the [config.yml](https://github.com/wavezync/pulse-bridge/blob/main/config.yml) in the project root to add your services and databases. Then rebuild the binary or Docker image and run it.
 
-### 🚢 Deploy with Kubernetes
+### Kubernetes :ship:
 
 There are many ways to deploy Pulse Bridge on Kubernetes. Below is a simple example using a Deployment, Service, and ConfigMap.
 
@@ -109,26 +109,23 @@ data:
 
 ### Environment Configuration
 
-1. .env file:
+#### Environment Variables
 
-A .env file is **optional** but can be configured:
+You can set environment variables to configure Pulse Bridge. These variables can be used to override the default configuration file or set the host and port.
 
-```bash
-PULSE_BRIDGE_CONFIG=mycustomconfig.yml # Sets the custom configuration file path, defaults to config.yml
-HOST=0.0.0.0 # Defaults to 0.0.0.0
-PORT=8080 # Defaults to 8080 
-```
+  ```bash
+  PULSE_BRIDGE_CONFIG=mycustomconfig.yml # Sets the custom configuration file path, defaults to config.yml
+  HOST=0.0.0.0 # Defaults to 0.0.0.0
+  PORT=8080 # Defaults to 8080 
+  ```
 
-2. CLI arguments:
+#### CLI arguments
 
-```bash
-pulse-bridge --config=mycustomconfig.yml --port=8080 --host=0.0.0.0
-```
+  CLI arguments take priority over environment variables and can be used to override the configuration file or set the host and port.
 
-> **Note:** CLI arguments take priority over `.env` file settings.
-CLI > .env
-
-
+  ```bash
+  pulse-bridge --config=mycustomconfig.yml --port=8080 --host=0.0.0.0
+  ```
 
 ## Usage
 
@@ -215,11 +212,10 @@ monitors:
 
 ### Monitoring
 
-
 You can check the status of your service from the pulse bridge API at the routes:
 
-
 #### /monitor/services  
+
 - List all monitored services
 
 ```json
@@ -253,7 +249,8 @@ You can check the status of your service from the pulse bridge API at the routes
  ]
 ```
 
-#### /monitor/services/{monitor_name} 
+#### /monitor/services/{monitor_name}
+
 - Get details of a specific service
 
 ```json
@@ -272,11 +269,8 @@ You can check the status of your service from the pulse bridge API at the routes
   },
 ```
 
-## Contributing
+## Contributing :heart:
 
 We welcome contributions! If you have ideas, bug fixes, or improvements, please open an issue or submit a pull request.
-
-
-
 
 Keep your systems transparent, your teams informed, and your users confident with Pulse Bridge – the heartbeat of your infrastructure. 🌊
