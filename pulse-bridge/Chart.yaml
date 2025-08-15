@@ -1,0 +1,12 @@
+apiVersion: v2
+name: pulse-bridge
+description: A Helm chart for deploying Pulse Bridge - a comprehensive monitoring solution for HTTP services and databases
+type: application
+version: 0.1.0
+appVersion: "latest"
+home: https://github.com/wavezync/pulse-bridge
+sources:
+  - https://github.com/wavezync/pulse-bridge
+maintainers:
+  - name: wavezync
+    url: https://github.com/wavezync

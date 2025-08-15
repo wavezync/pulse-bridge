@@ -1,0 +1,35 @@
+replicaCount: 1
+
+image:
+  repository: pulse-bridge
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 8080
+
+# The default config that will be inserted into the ConfigMap.
+# Users can override this entire block in their own values.yaml or with --set-file.
+config:
+  yaml: |
+      monitors:
+        HTTP service monitoring
+        - name: "HTTP Service"
+          type: "http"
+          interval: "30s"
+          timeout: "5s"
+          http:
+            url: "http://helloworld-http:8080/ping"
+            method: "GET"
+            headers:
+              Authorization: "Bearer secret-token"
+              Content-Type: "application/json"
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
